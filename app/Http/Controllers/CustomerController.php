@@ -1,82 +1,84 @@
 <?php
 namespace App\Http\Controllers;
 use Illuminate\Http\Request;
-use DB;
-use App\Mahasiswa;
 use App\Customer;
+use Session;
 class CustomerController extends Controller
 {
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function index()
     {
-    	//Query Builder
-    	$mahasiswa = DB::table('tbl_mahasiswa')->get();
-    	// dd($mahasiswa);
-    	//Eloquent
-    	// $mahasiswa = Mahasiswa::all();
-    	// return view('mahasiswa', compact('mahasiswa'));
-    	
-    	$data['mahasiswa'] = Mahasiswa::all();
-    	dd($data);
-    	return view('mahasiswa', $data);
+        $data['customer'] = Customer::paginate(10);
+        return view('customer.index',$data);
     }
-    function customer(){
-    	$data['customer'] = Customer::limit(10)->get();
-    	//explore variable with dd();
-    	// dd($data['customer']);
-    	return view('customer',$data);
-    }
-    public function customer_join()
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create()
     {
-        /* query builder */
-        /*
-         $data['customer'] = Customer::join('tbl_store','customer.store_id','=','tbl_store.store_id')
-        ->limit(10)
-        ->get();
-        */
-        /* Eloquent Relationship */
-        $data['customer']  = Customer::limit(10)->get();
-        // dd($data['customer']->store);
-        return view('customer',$data);
+        return view('customer.create');
     }
-    public function tambah_customer(Request $request)
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
     {
-        // dd() -> die(var_dump(array()))
-        // dd($request->all());
-        // cara pertama
-        // $customer = new Customer();
-        // $customer->store_id = $request->store_id;
-        // $customer->first_name = $request->first_name;
-        // $customer->last_name = $request->last_name;
-        // $customer->email = $request->email;
-        // $customer->address_id = $request->address_id;
-        // $customer->active = $request->active;
-        // $customer->save();
-        // gunakana function create dengan Eloquent
+        dd($request->all());
+    }
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $id)
+    {
+        //
+    }
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id)
+    {
+        
+    }
+    /**
+     * Untuk menampilkan modal/pop up konfirmasi hapus data customer
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
         $data = [
-            "store_id" => $request->store_id,
-            "first_name" => $request->first_name,
-            "last_name" => $request->last_name,
-            "email" => $request->email,
-            "address_id" => $request->address_id,
-            "active" => $request->active
+            'hal'   => 'Customer '.Customer::where('customer_id',$id)->first()->first_name,
+            'url'   => route('customer.destroy',[$id])
         ];
-        Customer::create($data);
-        return "data berhasil disimpan";
+        return view('layouts.delete',$data);
     }
-    public function update_customer(Request $request, $id)
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy($id)
     {
-        dd($id);
-        $data = [
-            "store_id" => $request->store_id,
-            "first_name" => $request->first_name,
-            "last_name" => $request->last_name,
-            "email" => $request->email,
-            "address_id" => $request->address_id,
-            "active" => $request->active
-        ];
-        Customer::where('customer_id',$id)->update($data);
-        //delete function
-        // Customer::where('customer_id',$id)->delete();
-        return "berhasil update data";
+        Customer::where('customer_id',$id)->delete();
+        Session::flash('success','Berhasil menghapus data Customer');
+        return redirect()->back();
     }
 }
